@@ -9,6 +9,7 @@ import time
 import io
 import json
 
+context = ""
 q = queue.Queue()
 
 
@@ -28,9 +29,28 @@ def stop(request):
 
 
 def process(request):
+    global context
     content = request.body.decode()
-    text = toneAnnalyze(content={"text": content})
-    return HttpResponse(text)
+    if context == "":
+        dic = {
+            "context": "",
+            "input": ""
+        }
+    else:
+        dic = {
+            "context": context,
+            "input": {"text": content}
+        }
+        analyze = toneAnnalyze(content={"text": content})
+        foo(analyze)
+    url = "http://10.221.164.213:3000/api/message"
+    print(dic)
+    r = requests.post(url=url, data=json.dumps(dic))
+    text = json.loads(r.text)
+    r.close()
+    reply = text['output']['text']
+    context = text['context']
+    return HttpResponse(reply)
 
 
 def speechToContext():
@@ -56,3 +76,20 @@ def toneAnnalyze(content):
     text = r.text
     r.close()
     return text
+
+
+def foo(data):
+    tones = data['document_tone']['tones']
+    emotion = ""
+    score = 0
+    for tone in tones:
+        if tone['score'] > score:
+            emotion = tone['tone_name']
+            score = tone['score']
+    if score < 0.6:
+        return None
+    else:
+        return material(emotion)
+
+def material(emotion):
+    
