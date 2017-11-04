@@ -1,6 +1,8 @@
 .idea/
 output.wav
 output.flac
+1.json
+tone.json
 *.swp
 *.swo
 *.DS_Store
