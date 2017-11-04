@@ -1,4 +1,6 @@
 .idea/
+output.wav
+output.flac
 *.swp
 *.swo
 *.DS_Store

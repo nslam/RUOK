@@ -6,6 +6,8 @@ from threading import Thread
 import soundfile as sf
 import requests
 import time
+import io
+import json
 
 q = queue.Queue()
 
@@ -26,9 +28,9 @@ def stop(request):
 
 
 def process(request):
-    # return HttpResponse(toneAnnalyze())
-    content = request.POST.decode()
-    return HttpResponse(speechToContext())
+    content = request.body.decode()
+    text = toneAnnalyze(content={"text": content})
+    return HttpResponse(text)
 
 
 def speechToContext():
@@ -42,8 +44,11 @@ def speechToContext():
     return text
 
 
-def toneAnnalyze():
-    data = open('D:/HowRU/tone.json', 'rb')
+def toneAnnalyze(content):
+    with open('1.json', 'w') as f:
+        f.write(json.dumps(content))
+        f.close()
+    data = open('1.json', 'rb')
     url = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2017-09-21"
     headers = {'Content-Type': 'application/json'}
     r = requests.post(url=url, data=data, headers=headers,
