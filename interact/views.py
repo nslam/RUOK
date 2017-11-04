@@ -3,8 +3,9 @@ from .models import *
 from django.http import HttpResponse
 from RUOK.tools import *
 from threading import Thread
-import soundfile
+import soundfile as sf
 import requests
+import time
 
 q = queue.Queue()
 
@@ -16,11 +17,11 @@ def start(request):
 
 
 def stop(request):
-    # t2 = Thread(target=stopRecord, args=(q,))
-    # t2.start()
-    # time.sleep(0.2)
-    data, ss = soundfile.read('output.wav')
-    soundfile.write('output.flac', data, ss)
+    t2 = Thread(target=stopRecord, args=(q,))
+    t2.start()
+    time.sleep(0.2)
+    data, samplerate = sf.read('output.wav')
+    sf.write('output.flac', data, samplerate)
     return HttpResponse(speechToContext())
 
 
