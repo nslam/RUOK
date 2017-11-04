@@ -3,6 +3,7 @@ from .models import *
 from django.http import HttpResponse
 from RUOK.tools import *
 from threading import Thread
+import soundfile
 import requests
 
 q = queue.Queue()
@@ -15,18 +16,22 @@ def start(request):
 
 
 def stop(request):
-    t2 = Thread(target=stopRecord, args=(q,))
-    t2.start()
-    return HttpResponse('stop')
+    # t2 = Thread(target=stopRecord, args=(q,))
+    # t2.start()
+    # time.sleep(0.2)
+    data, ss = soundfile.read('output.wav')
+    soundfile.write('output.flac', data, ss)
+    return HttpResponse(speechToContext())
 
 
 def process(request):
     # return HttpResponse(toneAnnalyze())
+    content = request.POST.decode()
     return HttpResponse(speechToContext())
 
 
 def speechToContext():
-    data = open('D:/HowRU/audio-file.flac', 'rb')
+    data = open('output.flac', 'rb')
     url = "https://stream.watsonplatform.net/speech-to-text/api/v1/recognize"
     headers = {"Content-Type": "audio/flac"}
     r = requests.post(url=url, data=data, headers=headers,
