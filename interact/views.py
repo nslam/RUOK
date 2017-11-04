@@ -2,16 +2,22 @@ from django.shortcuts import render
 from .models import *
 from django.http import HttpResponse
 from RUOK.tools import *
-import _thread
+from threading import Thread
 import requests
+
+q = queue.Queue()
 
 
 def start(request):
-    _thread.start_new_thread(record())
+    t1 = Thread(target=record, args=(q,))
+    t1.start()
+    return HttpResponse('start')
 
 
 def stop(request):
-    stopRecord()
+    t2 = Thread(target=stopRecord, args=(q,))
+    t2.start()
+    return HttpResponse('stop')
 
 
 def process(request):

@@ -1,10 +1,11 @@
 import pyaudio
 import wave
+import queue
 
 flag = 0
 
 
-def record():
+def record(q):
     flag = 0
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
@@ -26,9 +27,13 @@ def record():
     frames = []
 
     # for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    while flag == 0:
-        data = stream.read(CHUNK)
-        frames.append(data)
+    while 1:
+        try:
+            q.get(block=False)
+            break
+        except queue.Empty:
+            data = stream.read(CHUNK)
+            frames.append(data)
 
     print("* done recording")
 
@@ -45,6 +50,6 @@ def record():
     return 0
 
 
-def stopRecord():
-    flag = 1
+def stopRecord(q):
+    q.put(1)
     return 0
