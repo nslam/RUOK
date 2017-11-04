@@ -31,6 +31,7 @@ def stop(request):
 def process(request):
     global context
     content = request.body.decode()
+    rett = []
     if context == "":
         dic = {
             "context": "",
@@ -42,15 +43,22 @@ def process(request):
             "input": {"text": content}
         }
         analyze = toneAnnalyze(content={"text": content})
-        foo(analyze)
-    url = "http://10.221.164.213:3000/api/message"
-    print(dic)
-    r = requests.post(url=url, data=json.dumps(dic))
+        ret = foo(analyze)
+    url = "http://10.221.155.163:3000/api/message"
+    headers = {'Content-Type': 'application/json'}
+    print(json.dumps(dic))
+    r = requests.post(url=url, data=json.dumps(dic), headers=headers)
     text = json.loads(r.text)
     r.close()
     reply = text['output']['text']
     context = text['context']
-    return HttpResponse(reply)
+    rett.append({
+        "type": "plain",
+        "content": reply
+    })
+    if ret is not None:
+        rett.append(ret)
+    return HttpResponse(rett)
 
 
 def speechToContext():
@@ -79,17 +87,31 @@ def toneAnnalyze(content):
 
 
 def foo(data):
+    data = json.loads(data)
     tones = data['document_tone']['tones']
     emotion = ""
     score = 0
     for tone in tones:
         if tone['score'] > score:
-            emotion = tone['tone_name']
+            emotion = tone['tone_id']
             score = tone['score']
     if score < 0.6:
         return None
     else:
         return material(emotion)
 
-def material(emotion):
-    
+
+def material(name):
+    if Emotion.objects.filter(name=name).exists() == False:
+        return None
+    emotion = Emotion.objects.get(name=name)
+    materials = emotion.material_set.all()
+    material = materials[0]
+    dict = {
+        'type': 'type-' + material.type.name,
+        'url': material.url,
+        'title': material.title,
+        'content': material.content,
+        'picUrl': material.picUrl
+    }
+    return dict
