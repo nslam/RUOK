@@ -3,5 +3,7 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.process),
+    url(r'^process/$', views.process),
+    url(r'^start/$', views.start),
+    url(r'^stop/$', views.stop),
 ]
