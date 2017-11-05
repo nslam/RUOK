@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import *
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from RUOK.tools import *
 from threading import Thread
 import soundfile as sf
@@ -32,6 +32,7 @@ def process(request):
     global context
     content = request.body.decode()
     rett = []
+    ret =None
     if context == "":
         dic = {
             "context": "",
@@ -44,7 +45,7 @@ def process(request):
         }
         analyze = toneAnnalyze(content={"text": content})
         ret = foo(analyze)
-    url = "http://10.221.155.163:3000/api/message"
+    url = "http://localhost:3000/api/message"
     headers = {'Content-Type': 'application/json'}
     print(json.dumps(dic))
     r = requests.post(url=url, data=json.dumps(dic), headers=headers)
@@ -58,7 +59,7 @@ def process(request):
     })
     if ret is not None:
         rett.append(ret)
-    return HttpResponse(rett)
+    return JsonResponse(rett,safe=False)
 
 
 def speechToContext():
@@ -67,8 +68,11 @@ def speechToContext():
     headers = {"Content-Type": "audio/flac"}
     r = requests.post(url=url, data=data, headers=headers,
                       auth=("6ae3ccae-5cd6-4b51-9d50-0929c13cdd10", "M6cohYbk2YuG"))
-    text = r.text
+    text = json.loads(r.text)
     r.close()
+    if len(text["results"])==0:
+        return None
+    text=text["results"][0]["alternatives"][0]["transcript"]
     return text
 
 
@@ -108,7 +112,7 @@ def material(name):
     materials = emotion.material_set.all()
     material = materials[0]
     dict = {
-        'type': 'type-' + material.type.name,
+        'type': 'text-image',
         'url': material.url,
         'title': material.title,
         'content': material.content,
