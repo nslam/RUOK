@@ -59,6 +59,10 @@ def process(request):
         "content": reply
     })
     if ret is not None:
+        rett.append({
+            "type": "plain",
+            "content": getReply(ret['materialType'])
+        })
         rett.append(ret)
     return JsonResponse(rett, safe=False)
 
@@ -117,9 +121,26 @@ def material(name):
         'url': material.url,
         'title': material.title,
         'content': material.content,
-        'picUrl': material.picUrl
+        'picUrl': material.picUrl,
+        'materialType': material.type.name
     }
     return dict
+
+
+def getReply(type):
+    ret = {
+        "movie": [],
+        "book": [],
+        "music": []
+    }
+    ret["movie"].append("Let's watch a movie together!")
+    ret["movie"].append("A movie a day, keeps the sadness away!")
+    ret["book"].append("Why not just read a book?")
+    ret["book"].append("How about read a book together?")
+    ret["book"].append("This book may help you~")
+    ret["music"].append("Get relaxed with some songs~")
+    ret["music"].append("This song is just for you(づ￣ 3￣)づ")
+    return ret[type][getRnd(len(ret[type]))]
 
 
 def getRnd(n):
