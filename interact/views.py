@@ -76,7 +76,7 @@ def speechToContext():
     text = json.loads(r.text)
     r.close()
     if len(text["results"]) == 0:
-        return None
+        return ''
     text = text["results"][0]["alternatives"][0]["transcript"]
     return text
 
@@ -115,7 +115,7 @@ def material(name):
         return None
     emotion = Emotion.objects.get(name=name)
     materials = emotion.material_set.all()
-    material = materials[getRnd(len(materials))]
+    material = materials[getRnd(materials.count())]
     dict = {
         'type': 'text-image',
         'url': material.url,
@@ -144,5 +144,5 @@ def getReply(type):
 
 
 def getRnd(n):
-    s = random.random() * 1000
+    s = int(random.random() * 1000)
     return s % n
