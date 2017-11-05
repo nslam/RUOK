@@ -19,4 +19,4 @@ class Material(models.Model):
     picUrl = models.CharField(max_length=300)
     emotion = models.ManyToManyField(Emotion)
     def __str__(self):
-        return self.title
+        return self.type.name+''+ self.title

@@ -104,7 +104,8 @@ def foo(data):
         if tone['score'] > score:
             emotion = tone['tone_id']
             score = tone['score']
-    if score < 0.6:
+            print(score)
+    if score < 0.7:
         return None
     else:
         return material(emotion)
