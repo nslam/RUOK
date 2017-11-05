@@ -58,6 +58,10 @@ def process(request):
         "content": reply
     })
     if ret is not None:
+        rett.append({
+            "type":"plain",
+            "content":getReply(ret['materialType'])
+        })
         rett.append(ret)
     return JsonResponse(rett,safe=False)
 
@@ -116,6 +120,18 @@ def material(name):
         'url': material.url,
         'title': material.title,
         'content': material.content,
-        'picUrl': material.picUrl
+        'picUrl': material.picUrl,
+        'materialType':material.type.name
     }
     return dict
+
+def getReply(type):
+    ret={
+        "movie":[],
+        "book":[],
+        "music":[]
+    }
+    ret["movie"].append( "Let's watch a movie together!")
+    ret["book"].append("Why not just read a book?")
+    ret["music"].append("Get relaxed with some songs~")
+    return ret[type][0]
