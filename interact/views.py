@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import *
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 from RUOK.tools import *
 from threading import Thread
 import soundfile as sf
@@ -8,6 +8,7 @@ import requests
 import time
 import io
 import json
+import random
 
 context = ""
 q = queue.Queue()
@@ -32,7 +33,7 @@ def process(request):
     global context
     content = request.body.decode()
     rett = []
-    ret =None
+    ret = None
     if context == "":
         dic = {
             "context": "",
@@ -59,7 +60,7 @@ def process(request):
     })
     if ret is not None:
         rett.append(ret)
-    return JsonResponse(rett,safe=False)
+    return JsonResponse(rett, safe=False)
 
 
 def speechToContext():
@@ -70,9 +71,9 @@ def speechToContext():
                       auth=("6ae3ccae-5cd6-4b51-9d50-0929c13cdd10", "M6cohYbk2YuG"))
     text = json.loads(r.text)
     r.close()
-    if len(text["results"])==0:
+    if len(text["results"]) == 0:
         return None
-    text=text["results"][0]["alternatives"][0]["transcript"]
+    text = text["results"][0]["alternatives"][0]["transcript"]
     return text
 
 
@@ -110,7 +111,7 @@ def material(name):
         return None
     emotion = Emotion.objects.get(name=name)
     materials = emotion.material_set.all()
-    material = materials[0]
+    material = materials[getRnd(len(materials))]
     dict = {
         'type': 'text-image',
         'url': material.url,
@@ -119,3 +120,8 @@ def material(name):
         'picUrl': material.picUrl
     }
     return dict
+
+
+def getRnd(n):
+    s = random.random() * 1000
+    return s % n
